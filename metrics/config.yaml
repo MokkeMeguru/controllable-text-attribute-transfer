@@ -1,0 +1,4 @@
+bleu:
+    max_n: 4
+    hyp: "my-model-yelp2.txt"
+    refs: ["human-yelp.txt"]

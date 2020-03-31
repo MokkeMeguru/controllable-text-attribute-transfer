@@ -1,4 +1,5 @@
 import os
+
 import nltk
 
 
@@ -10,7 +11,6 @@ def buid_dict_file():
              'sentiment.test.0', 'sentiment.test.1']
     for file_item in file1:
         with open(file_item, 'r') as f:
-            print(file_item)
             for item in f:
                 item = item.strip()
                 word_list = nltk.word_tokenize(item)
@@ -24,7 +24,6 @@ def buid_dict_file():
     file2 = ['reference.0', 'reference.1']
     for file_item in file2:
         with open(file_item, 'r') as f:
-            print(file_item)
             for instance in f:
                 instance = instance.strip()
                 item1, item2 = instance.split('\t')
@@ -121,4 +120,3 @@ def build_id_file():
 if __name__ == '__main__':
     buid_dict_file()
     build_id_file()
-

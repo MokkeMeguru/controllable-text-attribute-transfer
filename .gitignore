@@ -1,0 +1,6 @@
+*.pyc
+/method/mymodel-yelp/save/1557667911/log_2020_03_26_12_50_00.txt
+/method/mymodel-yelp/save/1584890925/
+/method/mymodel-yelp/save/2020032301/
+.hydra
+.vscode

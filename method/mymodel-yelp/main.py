@@ -2,21 +2,23 @@
 # requirements: pytorch: 0.4
 # Author: Ke Wang
 # Contact: wangke17[AT]pku.edu.cn
-import time
 import argparse
 import math
 import os
+import time
+
+import matplotlib
+import numpy
 import torch
 import torch.nn as nn
-from torch import optim
-import numpy
-import matplotlib
 from matplotlib import pyplot as plt
+from torch import optim
 
+from data import (calc_bleu, get_cuda, id2text_sentence, load_human_answer,
+                  non_pair_data_loader, pad_batch_seuqences, prepare_data,
+                  to_var)
 # Import your model files.
-from model import make_model, Classifier, NoamOpt, LabelSmoothing, fgim_attack
-from data import prepare_data, non_pair_data_loader, get_cuda, pad_batch_seuqences, id2text_sentence,\
-    to_var, calc_bleu, load_human_answer
+from model import Classifier, LabelSmoothing, NoamOpt, fgim_attack, make_model
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
@@ -56,10 +58,10 @@ parser.add_argument('--label_size', type=int, default=1)
 
 args = parser.parse_args()
 
-# args.if_load_from_checkpoint = False
+args.if_load_from_checkpoint = True
 # args.if_load_from_checkpoint = True
-# args.checkpoint_name = "1557667911"
-
+args.checkpoint_name = "1557667911"
+# "1584890925"
 
 ######################################################################################
 #  End of hyper parameters
@@ -205,6 +207,8 @@ def eval_iters(ae_model, dis_model):
     add_log("Start eval process.")
     ae_model.eval()
     dis_model.eval()
+    fa = open('test-ae-ref.txt', 'w', encoding="utf-8")
+    fb = open('test-ae-hyp.txt', 'w', encoding="utf-8")
     for it in range(eval_data_loader.num_batch):
         batch_sentences, tensor_labels, \
         tensor_src, tensor_src_mask, tensor_tgt, tensor_tgt_y, \
@@ -212,6 +216,7 @@ def eval_iters(ae_model, dis_model):
 
         print("------------%d------------" % it)
         print(id2text_sentence(tensor_tgt_y[0], args.id_to_word))
+        fa.write(id2text_sentence(tensor_tgt_y[0], args.id_to_word) + '\n')
         print("origin_labels", tensor_labels)
 
         latent, out = ae_model.forward(tensor_src, tensor_tgt, tensor_src_mask, tensor_tgt_mask)
@@ -219,16 +224,19 @@ def eval_iters(ae_model, dis_model):
                                                 max_len=args.max_sequence_length,
                                                 start_id=args.id_bos)
         print(id2text_sentence(generator_text[0], args.id_to_word))
+        fb.write(id2text_sentence(generator_text[0], args.id_to_word) + '\n')
 
         # Define target label
-        target = get_cuda(torch.tensor([[1.0]], dtype=torch.float))
-        if tensor_labels[0].item() > 0.5:
-            target = get_cuda(torch.tensor([[0.0]], dtype=torch.float))
-        print("target_labels", target)
+        # target = get_cuda(torch.tensor([[1.0]], dtype=torch.float))
+        # if tensor_labels[0].item() > 0.5:
+        #     target = get_cuda(torch.tensor([[0.0]], dtype=torch.float))
+        # print("target_labels", target)
 
-        modify_text = fgim_attack(dis_model, latent, target, ae_model, args.max_sequence_length, args.id_bos,
-                                        id2text_sentence, args.id_to_word, gold_ans[it])
-        add_output(modify_text)
+        # modify_text = fgim_attack(dis_model, latent, target, ae_model, args.max_sequence_length, args.id_bos,
+        #                                 id2text_sentence, args.id_to_word, gold_ans[it])
+        # add_output(modify_text)
+    fa.close()
+    fb.close()
     return
 
 
@@ -254,4 +262,3 @@ if __name__ == '__main__':
     eval_iters(ae_model, dis_model)
 
     print("Done!")
-

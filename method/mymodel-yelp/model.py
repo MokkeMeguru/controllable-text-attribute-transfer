@@ -1,12 +1,16 @@
+import copy
+import math
+import time
+
+import numpy as np
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
-from torch import optim
 import torch.nn.functional as F
-import math, copy, time
 import torch.nn.utils.rnn as rnn_utils
-from data import get_cuda, to_var, calc_bleu
-import numpy as np
+from torch import optim
+from torch.autograd import Variable
+
+from data import calc_bleu, get_cuda, to_var
 
 
 def clones(module, N):
@@ -27,6 +31,15 @@ def attention(query, key, value, mask=None, dropout=None):
 
 
 class MultiHeadedAttention(nn.Module):
+    """
+    Note:
+        WARN: dimension is [B, S, D]
+        B is batch size
+        S is sequence size
+        D is hidden size
+        In PyTorch, they wanna use [S, B, D], (TF users use [B, S, D])
+    """
+
     def __init__(self, h, d_model, dropout=0.1):
         """Take in model size and number of heads."""
         super(MultiHeadedAttention, self).__init__()
@@ -60,7 +73,14 @@ class MultiHeadedAttention(nn.Module):
 
 
 class PositionwiseFeedForward(nn.Module):
-    """Implements FFN equation."""
+    """Implements FFN equation.
+    Note:
+        WARN: dimension is [B, S, D]
+        B is batch size
+        S is sequence size
+        D is hidden size
+        In PyTorch, they wanna use [S, B, D], (TF user use [B, S, D])
+    """
     def __init__(self, d_model, d_ff, dropout=0.1):
         super(PositionwiseFeedForward, self).__init__()
         self.w_1 = nn.Linear(d_model, d_ff)
@@ -158,7 +178,8 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x, mask):
         """Follow Figure 1 (left) for connections."""
-        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))
+        x = self.sublayer[0](x,
+                             lambda x: self.self_attn(x, x, x, mask))
         return self.sublayer[1](x, self.feed_forward)
 
 
@@ -483,5 +504,3 @@ if __name__ == '__main__':
     # Small example model.
     # tmp_model = make_model(10, 10, 2)
     pass
-
-

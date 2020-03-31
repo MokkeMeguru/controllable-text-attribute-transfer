@@ -1,0 +1,12 @@
+defaults:
+  - metrics: default
+  - dataset: yelp
+
+dataset:
+  # Please Don't Change Them
+  extra_keywords:
+    - "<PAD>"
+    - "<UNK>"
+    - "<BOS>"
+    - "<EOS>"
+    - "<MASK>"

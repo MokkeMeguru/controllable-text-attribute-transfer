@@ -1,0 +1,11 @@
+tokenizer: nltk
+source_files:
+  - "data/yelp/sentiment.train.0"
+  - 'data/yelp/sentiment.train.0'
+  - 'data/yelp/sentiment.train.1'
+  - 'data/yelp/sentiment.dev.0'
+  - 'data/yelp/sentiment.dev.1'
+  - 'data/yelp/sentiment.test.0'
+  - 'data/yelp/sentiment.test.1'
+vocab_file: 'data/yelp/processed_files/word_to_id.txt'
+output_prefix: 'data/yelp/processed_files/'

@@ -1,4 +1,5 @@
 import os
+
 import nltk
 
 
@@ -119,4 +120,3 @@ def build_id_file():
 if __name__ == '__main__':
     buid_dict_file()
     build_id_file()
-
